@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Mock Interview Bot</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --card: #171a21;
+    --accent: #6c8cff;
+    --good: #3ddc84;
+    --bad: #ff6b6b;
+    --warning: #ffb84d;
+    --text: #e8e9ed;
+    --muted: #9aa0ab;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    padding: 40px 16px;
+    min-height: 100vh;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 700px;
+  }
+
+  h1 {
+    font-size: 28px;
+    margin: 0 0 8px;
+    font-weight: 700;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    margin-bottom: 32px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+
+  label {
+    display: block;
+    margin: 24px 0 8px;
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  input[type=text], select, textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid #2a2e38;
+    background: #0f1115;
+    color: var(--text);
+    font-size: 15px;
+    font-family: inherit;
+    transition: border-color 0.2s;
+  }
+
+  input[type=text]:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(108, 140, 255, 0.1);
+  }
+
+  textarea {
+    min-height: 160px;
+    resize: vertical;
+  }
+
+  .options {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+
+  .chip {
+    padding: 10px 18px;
+    border-radius: 24px;
+    border: 1px solid #2a2e38;
+    background: transparent;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--muted);
+    transition: all 0.2s;
+    font-weight: 500;
+  }
+
+  .chip:hover {
+    border-color: var(--accent);
+    color: var(--text);
+  }
+
+  .chip.selected {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  button.primary {
+    margin-top: 32px;
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  button.primary:hover:not(:disabled) {
+    background: #5a7ee8;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(108, 140, 255, 0.3);
+  }
+
+  button.primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  button.secondary {
+    margin-top: 12px;
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #2a2e38;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--muted);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  button.secondary:hover {
+    border-color: var(--muted);
+    color: var(--text);
+  }
+
+  .progress-bar {
+    height: 6px;
+    background: #2a2e38;
+    border-radius: 3px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #7c99ff);
+    transition: width 0.3s ease;
+  }
+
+  .question-box {
+    font-size: 18px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+    color: var(--text);
+  }
+
+  .score-badge {
+    display: inline-block;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 32px;
+    margin-bottom: 16px;
+    text-align: center;
+    min-width: 120px;
+  }
+
+  .feedback-section {
+    margin-top: 24px;
+    padding: 16px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 8px;
+    border-left: 3px solid var(--accent);
+  }
+
+  .feedback-section h4 {
+    margin: 0 0 8px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+  }
+
+  .feedback-section.good {
+    border-left-color: var(--good);
+  }
+
+  .feedback-section.good h4 {
+    color: var(--good);
+  }
+
+  .feedback-section.bad {
+    border-left-color: var(--bad);
+  }
+
+  .feedback-section.bad h4 {
+    color: var(--bad);
+  }
+
+  .feedback-text {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text);
+  }
+
+  .ideal-points {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0 0;
+  }
+
+  .ideal-points li {
+    padding: 6px 0;
+    padding-left: 24px;
+    position: relative;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .ideal-points li:before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: var(--good);
+    font-weight: 700;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  .error {
+    color: var(--bad);
+    font-size: 13px;
+    margin-top: 12px;
+    padding: 12px;
+    background: rgba(255, 107, 107, 0.1);
+    border-radius: 6px;
+    border-left: 3px solid var(--bad);
+  }
+
+  .loading {
+    color: var(--muted);
+    font-size: 14px;
+    text-align: center;
+    padding: 24px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(108, 140, 255, 0.2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 24px;
+  }
+
+  .summary-item h4 {
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin: 0 0 8px;
+  }
+
+  .summary-item ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .summary-item li {
+    padding: 6px 0;
+    font-size: 13px;
+    color: var(--text);
+  }
+
+  .summary-note {
+    margin-top: 24px;
+    padding: 16px;
+    background: rgba(108, 140, 255, 0.1);
+    border-left: 3px solid var(--accent);
+    border-radius: 6px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text);
+  }
+
+  .score-display {
+    text-align: center;
+    margin: 40px 0;
+  }
+
+  .score-circle {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 48px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .score-circle.excellent {
+    background: linear-gradient(135deg, var(--good), #2bc96f);
+  }
+
+  .score-circle.good {
+    background: linear-gradient(135deg, #4fb584, #2bc96f);
+  }
+
+  .score-circle.average {
+    background: linear-gradient(135deg, var(--warning), #ffa724);
+  }
+
+  .score-circle.poor {
+    background: linear-gradient(135deg, var(--bad), #ff4757);
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <h1>AI Mock Interview Bot</h1>
+  <div class="subtitle">Master interviews with AI-powered practice and personalized feedback</div>
+
+  <!-- PAGE 1: SETUP SCREEN -->
+  <div class="card" id="page-setup">
+    <label>Your name</label>
+    <input type="text" id="candidateName" placeholder="Enter your name" />
+
+    <label>Interview topic</label>
+    <div class="options" id="topicOptions">
+      <div class="chip" data-value="DSA">DSA</div>
+      <div class="chip" data-value="System Design">System Design</div>
+      <div class="chip" data-value="HR">HR</div>
+      <div class="chip" data-value="Core CS">Core CS</div>
+    </div>
+
+    <!-- Company name field for HR questions -->
+    <label id="companyLabel" style="display: none; margin-top: 24px;">
+      Company name (optional, for company-specific HR questions)
+    </label>
+    <input type="text" id="companyName" placeholder="e.g., Google, Amazon, Microsoft (optional)" style="display: none; margin-top: 8px;" />
+
+    <!-- NEW: Role field for HR questions -->
+    <label id="roleLabel" style="display: none; margin-top: 24px;">
+      Role/Position (optional, for role-specific HR questions)
+    </label>
+    <input type="text" id="roleName" placeholder="e.g., Software Engineer, Product Manager, Data Scientist (optional)" style="display: none; margin-top: 8px;" />
+
+    <label>Difficulty level</label>
+    <div class="options" id="difficultyOptions">
+      <div class="chip" data-value="Easy">Easy</div>
+      <div class="chip" data-value="Medium">Medium</div>
+      <div class="chip" data-value="Hard">Hard</div>
+    </div>
+
+    <label>Number of questions</label>
+    <select id="numQuestions">
+      <option value="3">3 questions (quick practice)</option>
+      <option value="5" selected>5 questions (standard)</option>
+      <option value="10">10 questions (full interview)</option>
+    </select>
+
+    <button class="primary" id="startBtn">Start Interview</button>
+    <div class="error hidden" id="setupError"></div>
+  </div>
+
+  <!-- PAGE 2: INTERVIEW SCREEN -->
+  <div class="card hidden" id="page-interview">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="subtitle" id="progressLabel">Question 1 of 5</div>
+    <div class="question-box" id="questionText"></div>
+    <textarea id="answerInput" placeholder="Type your answer here. Take your time and be thorough."></textarea>
+    <button class="primary" id="submitAnswerBtn">Submit Answer</button>
+    <button class="secondary" id="hintBtn">💡 Use Hint (caps score at 7/10)</button>
+    <div class="loading hidden" id="evalLoading"><div class="spinner"></div> Evaluating your answer...</div>
+  </div>
+
+  <!-- PAGE 3: FEEDBACK SCREEN -->
+  <div class="card hidden" id="page-feedback">
+    <div id="scoreBadgeWrap"></div>
+
+    <div class="feedback-section good" id="goodSection">
+      <h4>What you got right</h4>
+      <div class="feedback-text" id="goodText"></div>
+    </div>
+
+    <div class="feedback-section bad" id="missingSection">
+      <h4>What you missed</h4>
+      <div class="feedback-text" id="missingText"></div>
+    </div>
+
+    <div class="feedback-section">
+      <h4>Ideal answer should cover</h4>
+      <ul class="ideal-points" id="idealPoints"></ul>
+    </div>
+
+    <button class="primary"
